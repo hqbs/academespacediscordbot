@@ -47,7 +47,27 @@ client.on("message", message => {
                 .find(member => !member.hasPermission("ADMINISTRATOR"))
                 .addRole(role.id);
 
-              createChannel("Professor's Office", 4, message);
+              message.guild
+                .createChannel("Classroom", "category")
+                .then(category => {
+                  message.guild
+                    .createChannel("announcements", "text")
+                    .then(channel => channel.setParent(category.id));
+                  message.guild
+                    .createChannel("general", "text")
+                    .then(channel => channel.setParent(category.id));
+                });
+
+              message.guild
+                .createChannel("Professor's Office", "category")
+                .then(category => {
+                  message.guild
+                    .createChannel("professor-text", "text")
+                    .then(channel => channel.setParent(category.id));
+                  message.guild
+                    .createChannel("professor-voice", "voice")
+                    .then(channel => channel.setParent(category.id));
+                });
 
               // End of Setup
               message.channel.sendMessage("Status: Server built successfully");
@@ -77,10 +97,47 @@ client.on("message", message => {
               .find(role => role.name === "Students")
               .delete()
               .then(r => {
-                message.guild.channels.forEach(channel => channel.delete());
+                message.guild.channels.forEach(channel => {
+                  if (channel.name !== "test") {
+                    channel.delete();
+                  }
+                });
               });
           });
       });
+  }
+  if (
+    message.content == "!taopen" &&
+    message.member.hasPermission("ADMINISTRATOR")
+  ) {
+    message.guild
+      .createChannel(
+        "TA Office (" + message.member.user.username + ")",
+        "category"
+      )
+      .then(category => {
+        message.guild
+          .createChannel("ta-text", "text")
+          .then(channel => channel.setParent(category.id));
+        message.guild
+          .createChannel("ta-voice", "voice")
+          .then(channel => channel.setParent(category.id));
+      });
+  }
+
+  if (
+    message.content == "!taclose" &&
+    message.member.hasPermission("ADMINISTRATOR")
+  ) {
+    message.guild.channels.forEach(channel => {
+      if (
+        channel.name === "TA Office (" + message.member.user.username + ")" ||
+        channel.name === "ta-text" ||
+        channel.name === "ta-voice"
+      ) {
+        channel.delete();
+      }
+    });
   }
 
   if (
@@ -113,9 +170,5 @@ client.on("message", message => {
     });
   }
 });
-
-function createChannel(name, type, message) {
-  message.guild.createChannel(name, type).catch(console.error);
-}
 
 client.login(token);
