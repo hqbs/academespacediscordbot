@@ -1,174 +1,191 @@
-const Discord = require("discord.js");
-const client = new Discord.Client();
+const express = require('express')
+const app = express()
+var cors = require('cors')
+const bodyParser = require('body-parser')
+const Discord = require('discord.js')
+const client = new Discord.Client()
 
-require("dotenv").config();
-const token = process.env.DISCORD_TOKEN;
+app.use(cors())
+app.use(bodyParser.json())
 
-client.on("ready", () => {
-  console.log("Discord bot up and running!");
-});
+require('dotenv').config()
+const token = process.env.DISCORD_TOKEN
 
-client.on("message", message => {
+client.on('ready', () => {
+  console.log('Discord bot up and running!')
+})
+
+client.on('message', message => {
   if (
-    message.content === "!setup" &&
-    message.member.hasPermission("ADMINISTRATOR")
+    message.content === '!setup' &&
+    message.member.hasPermission('ADMINISTRATOR')
   ) {
-    if (message.guild.roles.find(role => role.name === "Bots") == null) {
-      message.channel.sendMessage("Status: Building Server");
+    if (message.guild.roles.find(role => role.name === 'Bots') == null) {
+      message.channel.sendMessage('Status: Building Server')
       message.guild
-        .createRole({ name: "Bots", hoist: true, color: "#faff00" })
+        .createRole({ name: 'Bots', hoist: true, color: '#faff00' })
         .then(botRole => {
           // The bots ID
-          let botId = client.user.id;
+          let botId = client.user.id
 
           // Setting the Bots role
           message.guild.members
             .find(member => member.id === botId)
-            .addRole(botRole.id);
+            .addRole(botRole.id)
 
           // Setting up Professor Role
           message.guild
-            .createRole({ name: "Professors", hoist: true, color: "#c21c1c" })
+            .createRole({ name: 'Professors', hoist: true, color: '#c21c1c' })
             .then(professorRole => {
               // Getting up professor id
-              let professorId = message.member.id;
+              let professorId = message.member.id
 
               // Setting up Professors role
               message.guild.members
                 .find(member => member.id === professorId)
-                .addRole(professorRole.id);
-            });
+                .addRole(professorRole.id)
+            })
 
           message.guild
-            .createRole({ name: "Students", hoist: true, color: "#30ac02" })
+            .createRole({ name: 'Students', hoist: true, color: '#30ac02' })
             .then(role => {
               // Add student role to all students
               message.guild.members
-                .find(member => !member.hasPermission("ADMINISTRATOR"))
-                .addRole(role.id);
+                .find(member => !member.hasPermission('ADMINISTRATOR'))
+                .addRole(role.id)
 
               message.guild
-                .createChannel("Classroom", "category")
+                .createChannel('Classroom', 'category')
                 .then(category => {
                   message.guild
-                    .createChannel("announcements", "text")
-                    .then(channel => channel.setParent(category.id));
+                    .createChannel('announcements', 'text')
+                    .then(channel => channel.setParent(category.id))
                   message.guild
-                    .createChannel("general", "text")
-                    .then(channel => channel.setParent(category.id));
-                });
+                    .createChannel('general', 'text')
+                    .then(channel => channel.setParent(category.id))
+                })
 
               message.guild
-                .createChannel("Professor's Office", "category")
+                .createChannel("Professor's Office", 'category')
                 .then(category => {
                   message.guild
-                    .createChannel("professor-text", "text")
-                    .then(channel => channel.setParent(category.id));
+                    .createChannel('professor-text', 'text')
+                    .then(channel => channel.setParent(category.id))
                   message.guild
-                    .createChannel("professor-voice", "voice")
-                    .then(channel => channel.setParent(category.id));
-                });
+                    .createChannel('professor-voice', 'voice')
+                    .then(channel => channel.setParent(category.id))
+                })
 
               // End of Setup
-              message.channel.sendMessage("Status: Server built successfully");
-            });
+              message.channel.sendMessage('Status: Server built successfully')
+            })
         })
-        .catch(console.error);
+        .catch(console.error)
     } else {
-      message.channel.sendMessage("Status: Server Build Failed");
+      message.channel.sendMessage('Status: Server Build Failed')
     }
   }
 
   if (
-    message.content == "!nuke" &&
-    message.member.hasPermission("ADMINISTRATOR")
+    message.content == '!nuke' &&
+    message.member.hasPermission('ADMINISTRATOR')
   ) {
     message.guild.roles
-      .find(role => role.name === "Bots")
+      .find(role => role.name === 'Bots')
       .delete()
       .then(r => {
-        message.channel.sendMessage("Status: Nuking the Server");
+        message.channel.sendMessage('Status: Nuking the Server')
 
         message.guild.roles
-          .find(role => role.name === "Professors")
+          .find(role => role.name === 'Professors')
           .delete()
           .then(r => {
             message.guild.roles
-              .find(role => role.name === "Students")
+              .find(role => role.name === 'Students')
               .delete()
               .then(r => {
                 message.guild.channels.forEach(channel => {
-                  if (channel.name !== "test") {
-                    channel.delete();
+                  if (channel.name !== 'test') {
+                    channel.delete()
                   }
-                });
-              });
-          });
-      });
+                })
+              })
+          })
+      })
   }
   if (
-    message.content == "!taopen" &&
-    message.member.hasPermission("ADMINISTRATOR")
+    message.content == '!taopen' &&
+    message.member.hasPermission('ADMINISTRATOR')
   ) {
     message.guild
       .createChannel(
-        "TA Office (" + message.member.user.username + ")",
-        "category"
+        'TA Office (' + message.member.user.username + ')',
+        'category'
       )
       .then(category => {
         message.guild
-          .createChannel("ta-text", "text")
-          .then(channel => channel.setParent(category.id));
+          .createChannel('ta-text', 'text')
+          .then(channel => channel.setParent(category.id))
         message.guild
-          .createChannel("ta-voice", "voice")
-          .then(channel => channel.setParent(category.id));
-      });
+          .createChannel('ta-voice', 'voice')
+          .then(channel => channel.setParent(category.id))
+      })
   }
 
   if (
-    message.content == "!taclose" &&
-    message.member.hasPermission("ADMINISTRATOR")
+    message.content == '!taclose' &&
+    message.member.hasPermission('ADMINISTRATOR')
   ) {
     message.guild.channels.forEach(channel => {
       if (
-        channel.name === "TA Office (" + message.member.user.username + ")" ||
-        channel.name === "ta-text" ||
-        channel.name === "ta-voice"
+        channel.name === 'TA Office (' + message.member.user.username + ')' ||
+        channel.name === 'ta-text' ||
+        channel.name === 'ta-voice'
       ) {
-        channel.delete();
+        channel.delete()
       }
-    });
+    })
   }
 
   if (
-    message.content === "!channels" &&
-    message.member.hasPermission("ADMINISTRATOR")
+    message.content === '!channels' &&
+    message.member.hasPermission('ADMINISTRATOR')
   ) {
-    message.channel.sendMessage("______________________\n");
+    message.channel.sendMessage('______________________\n')
     message.guild.channels.forEach(channel => {
       message.channel.sendMessage(
-        "**Channel Name:** \t" +
+        '**Channel Name:** \t' +
           channel.name +
-          " \n**Channel Type:**   \t" +
+          ' \n**Channel Type:**   \t' +
           channel.type +
-          "\n______________________\n"
-      );
-    });
+          '\n______________________\n'
+      )
+    })
   }
 
   if (
-    message.content === "!roles" &&
-    message.member.hasPermission("ADMINISTRATOR")
+    message.content === '!roles' &&
+    message.member.hasPermission('ADMINISTRATOR')
   ) {
-    message.channel.sendMessage("______________________\n");
+    message.channel.sendMessage('______________________\n')
     message.guild.roles.forEach(role => {
-      if (role.name !== "@everyone") {
+      if (role.name !== '@everyone') {
         message.channel.sendMessage(
-          "**Role Name** \t" + role.name + "\n______________________\n"
-        );
+          '**Role Name** \t' + role.name + '\n______________________\n'
+        )
       }
-    });
+    })
   }
-});
+})
 
-client.login(token);
+app.get('/status', (req, res) => {
+  res.json({
+    status: client.status
+  })
+})
+
+app.listen(8000, () => {
+  console.log('Server is up on port ' + 8000)
+})
+
+client.login(token)
