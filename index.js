@@ -184,6 +184,49 @@ app.get('/status', (req, res) => {
   })
 })
 
+app.get('/guilds', (req, res) => {
+  let servers = []
+
+  client.guilds.map(server => {
+    servers.push({ name: server.toString(), id: server.id })
+  })
+
+  res.json({
+    servers: servers
+  })
+})
+
+app.get('/ta/open/:server', (req, res) => {
+  let server = client.guilds.find(s => s.id === req.params.server)
+
+  server.createChannel('TA Office', 'category').then(category => {
+    server
+      .createChannel('ta-text', 'text')
+      .then(channel => channel.setParent(category.id))
+    server
+      .createChannel('ta-voice', 'voice')
+      .then(channel => channel.setParent(category.id))
+  })
+
+  res.send('Success')
+})
+
+app.get('/ta/close/:server', (req, res) => {
+  let server = client.guilds.find(s => s.id === req.params.server)
+
+  server.channels.forEach(channel => {
+    if (
+      channel.name === 'TA Office' ||
+      channel.name === 'ta-text' ||
+      channel.name === 'ta-voice'
+    ) {
+      channel.delete()
+    }
+  })
+
+  res.send('Success')
+})
+
 app.listen(8000, () => {
   console.log('Server is up on port ' + 8000)
 })
