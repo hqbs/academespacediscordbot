@@ -6,7 +6,7 @@ const Discord = require('discord.js')
 const client = new Discord.Client()
 const axios = require('axios')
 
-const IP = '35.226.72.159:4000'
+const IP = '35.192.87.46:4000'
 
 app.use(cors())
 app.use(bodyParser.json())
