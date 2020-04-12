@@ -6,6 +6,8 @@ const Discord = require('discord.js')
 const client = new Discord.Client()
 const axios = require('axios')
 
+const IP = '35.226.72.159:4000'
+
 app.use(cors())
 app.use(bodyParser.json())
 
@@ -54,20 +56,35 @@ client.on('message', message => {
           )
       }
     })
+
     const verification = tokens[1]
     const serverID = message.guild.id
     const ownerID = message.author.id
-    axios.get('verifyserver').then(res => {
-      if (res.success) {
-        message.reply(
-          'Your server is now connected to our platform. **Please go back to the website and click "Create Server" to complete the process!**'
-        )
-      } else {
-        message.reply(
-          'Server setup has failed! Code may be expired. Please try again.'
-        )
-      }
-    })
+    axios
+      .get(
+        'http://' +
+          IP +
+          '/graphql?query=mutation+_{createserverd(token:"' +
+          verification +
+          '", professordcordid: "' +
+          ownerID +
+          '", dcordserverid: "' +
+          serverID +
+          '"){success errors token}}'
+      )
+      .then(res => {
+        const success = res.data.data.createserverd.token
+
+        if (success) {
+          message.reply(
+            'Your server is now connected to our platform. **Please go back to the website and click "Create Server" to complete the process!**'
+          )
+        } else {
+          message.reply(
+            'Server setup has failed! Code may be expired. Please try again.'
+          )
+        }
+      })
   }
 
   if (
