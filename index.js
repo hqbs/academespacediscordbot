@@ -41,7 +41,7 @@ client.on('message', message => {
         message.guild.members
           .find(
             member =>
-              member.id !== client.user.id || member.id !== message.author.id
+              member.id !== client.user.id && member.id !== message.author.id
           )
           .addRole(role.id)
       }
