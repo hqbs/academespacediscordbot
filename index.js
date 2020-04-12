@@ -94,7 +94,7 @@ client.on('message', message => {
     message.guild.roles.forEach(role => {
       if (role.name === '1. Students') {
         message.guild.channels.forEach(channel => {
-          if (channel.name === "Professor's Office") {
+          if (channel.name === "Instructor's Office") {
             channel.overwritePermissions(role, {
               VIEW_CHANNEL: true,
               SEND_MESSAGES: true
@@ -204,12 +204,51 @@ app.get('/guilds', (req, res) => {
 
 app.get('/officehours/open/:server', (req, res) => {
   let server = client.guilds.find(s => s.id === req.params.server)
+  server.roles.forEach(role => {
+    if (role.name === '1. Students') {
+      server.channels.forEach(channel => {
+        if (channel.name === "Instructor's Office") {
+          channel.overwritePermissions(role, {
+            VIEW_CHANNEL: true,
+            SEND_MESSAGES: true
+          })
+          server.channels.forEach(channel => {
+            if (channel.name === 'bot-spam') {
+              client.channels
+                .get(channel.id)
+                .send('Office Hours are now in Session!')
+            }
+          })
+        }
+      })
+    }
+  })
 
   res.send('Success')
 })
 
 app.get('/officehours/close/:server', (req, res) => {
   let server = client.guilds.find(s => s.id === req.params.server)
+
+  server.roles.forEach(role => {
+    if (role.name === '1. Students') {
+      server.channels.forEach(channel => {
+        if (channel.name === "Instructor's Office") {
+          channel.overwritePermissions(role, {
+            VIEW_CHANNEL: false,
+            SEND_MESSAGES: false
+          })
+          server.channels.forEach(channel => {
+            if (channel.name === 'bot-spam') {
+              client.channels
+                .get(channel.id)
+                .send('Office Hours are now closed!')
+            }
+          })
+        }
+      })
+    }
+  })
 
   res.send('Success')
 })
