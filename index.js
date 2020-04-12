@@ -38,12 +38,12 @@ client.on('message', message => {
           .addRole(role.id)
       }
       if (role.name === '1. Students') {
-        message.guild.members
-          .find(
-            member =>
-              member.id !== client.user.id && member.id !== message.author.id
-          )
-          .addRole(role.id)
+        // message.guild.members
+        //   .find(
+        //     member =>
+        //       member.id !== client.user.id && member.id !== message.author.id
+        //   )
+        //   .addRole(role.id)
       }
     })
 
